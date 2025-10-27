@@ -39,11 +39,10 @@ class DashboardController extends Controller
     public function voters(): View
     {
         $voters = Vote::query()
+            ->with('candidate')
             ->select('voter_mobile', 'verified', 'created_at')
-            ->with('candidate:id,name')
             ->latest()
             ->paginate(20);
-
         return view('admin.voters', compact('voters'));
     }
 }
