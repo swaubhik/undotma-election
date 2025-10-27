@@ -196,32 +196,22 @@
     </div>
   </div>
 
-  <script>
-    let currentMobile = '';
-    let currentCandidateId = {{ $candidate->id }};
-    let msg91VerificationToken = '';
-    console.log('Candidate ID:', currentCandidateId);
-    // MSG91 Configuration
-    var msg91Configuration = {
+  <!-- MSG91 OTP Widget Script - Must load after initSendOTP function is defined -->
+  <script type="text/javascript">
+    var msg91WidgetConfiguration = {
       widgetId: "{{ config('services.msg91.widget_id') }}",
       tokenAuth: "{{ config('services.msg91.access_token') }}",
       exposeMethods: true,
       success: (data) => {
-        console.log('MSG91 Success:', data);
-        msg91VerificationToken = data.token;
-        document.getElementById('msg91-widget-container').classList.remove('hidden');
-        showMessage('OTP verified successfully!', 'success');
+        console.log('MSG91 Widget Success:', data);
       },
       failure: (error) => {
-        console.error('MSG91 Failure:', error);
-        showMessage('OTP verification failed. Please try again.', 'error');
+        console.error('MSG91 Widget Failure:', error);
       }
     };
   </script>
-  <!-- MSG91 OTP Widget Script -->
-  <script type="text/javascript" onload="initSendOTP(msg91Configuration)" src="https://verify.msg91.com/otp-provider.js">
-  </script>
-
+  <script type="text/javascript" onload="initSendOTP(msg91WidgetConfiguration)"
+    src="https://verify.msg91.com/otp-provider.js"></script>
   <!-- AOS Initialization -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
@@ -232,10 +222,20 @@
       once: true
     });
 
+    // Global state for OTP voting flow
+    let currentMobile = '';
+    let currentCandidateId = {{ $candidate->id }};
+    let msg91VerificationToken = '';
+    let msg91Configuration = null;
+
+    // Initialize function called when MSG91 script loads
+    function initSendOTP(config) {
+      msg91Configuration = config;
+      console.log('MSG91 OTP Widget Initialized:', msg91Configuration);
+    }
 
     function initiateMSG91OTP() {
       const mobile = document.getElementById('voter-mobile').value;
-      const messageDiv = document.getElementById('message');
 
       if (!mobile || mobile.length !== 10) {
         showMessage('Please enter a valid 10-digit mobile number', 'error');
@@ -258,23 +258,32 @@
         })
         .then(response => response.json())
         .then(data => {
+          console.log('Backend Response:', data);
           if (data.success) {
-            // Trigger MSG91 OTP widget with the mobile number
+            // Format mobile with country code
             const mobileWithCC = '91' + mobile;
 
-            // Update configuration with identifier and initialize
-            msg91Configuration.identifier = mobileWithCC;
-
-            if (window.initSendOTP) {
-              window.initSendOTP(msg91Configuration);
-            } else {
-              console.error('MSG91 widget not loaded');
-              showMessage('OTP service not available. Please try again.', 'error');
-            }
-
+            // Show OTP input section
             document.getElementById('mobile-input-section').classList.add('hidden');
             document.getElementById('msg91-widget-container').classList.remove('hidden');
             showMessage(data.message, 'success');
+
+            // Trigger MSG91 widget to send OTP
+            if (window.sendOtp) {
+              window.sendOtp(
+                mobileWithCC,
+                (response) => {
+                  console.log('OTP sent successfully:', response);
+                },
+                (error) => {
+                  console.error('Error sending OTP:', error);
+                  showMessage('Failed to send OTP. Please try again.', 'error');
+                }
+              );
+            } else {
+              console.error('MSG91 sendOtp method not available');
+              showMessage('OTP service not available. Please try again.', 'error');
+            }
           } else {
             showMessage(data.message, 'error');
           }
@@ -299,7 +308,13 @@
           otp,
           (data) => {
             console.log('OTP Verified:', data);
-            msg91VerificationToken = data.token || data.access_token || '';
+            // MSG91 returns token in the response
+            msg91VerificationToken = data.message || data.access_token || '';
+
+            if (!msg91VerificationToken) {
+              showMessage('Verification failed. No token received.', 'error');
+              return;
+            }
 
             // Send verification token to backend
             submitVote(msg91VerificationToken);
@@ -347,7 +362,7 @@
     function retryMSG91OTP() {
       if (window.retryOtp) {
         window.retryOtp(
-          null, // Use default channel
+          null, // Use default channel (SMS)
           (data) => {
             console.log('OTP Resent:', data);
             showMessage('OTP resent successfully!', 'success');
