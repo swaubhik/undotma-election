@@ -4,8 +4,8 @@ services:
     image: nginx:alpine
     container_name: election-nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "8000:80"
+      - "8443:443"
     volumes:
       - ./:/var/www/html
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
