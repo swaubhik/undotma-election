@@ -51,6 +51,7 @@ COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
 
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD php artisan tinker --execute="echo 'OK'"
