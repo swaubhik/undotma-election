@@ -76,7 +76,7 @@
             data-aos="fade-up" data-aos-delay="100">
             <div
               class="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
-              <i class="fas fa-shield-check text-4xl text-white"></i>
+              <i class="fas fa-clock text-4xl text-white"></i>
             </div>
             <h3 class="mb-4 text-2xl font-bold text-gray-800">Secure Voting</h3>
             <p class="leading-relaxed text-gray-600">
@@ -256,7 +256,7 @@
               <span>Vote Now</span>
             </a>
           @else
-            <a href="{{ route('login') }}"
+            <a href="{{ route('candidates.index') }}"
               class="flex transform items-center space-x-3 rounded-2xl bg-white px-12 py-6 text-xl font-bold text-blue-600 shadow-2xl transition-all duration-300 hover:scale-110 hover:shadow-white/30">
               <i class="fas fa-sign-in-alt"></i>
               <span>Get Started</span>
