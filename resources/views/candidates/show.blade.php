@@ -297,8 +297,8 @@
     function verifyMSG91OTP() {
       const otp = document.getElementById('otp-input').value;
 
-      if (!otp || otp.length !== 6) {
-        showMessage('Please enter a valid 6-digit OTP', 'error');
+      if (!otp || otp.length !== 4) {
+        showMessage('Please enter a valid 4-digit OTP', 'error');
         return;
       }
 
