@@ -16,10 +16,11 @@
             <div>
               <label for="portfolio_id" class="block text-sm font-medium text-gray-700">Portfolio *</label>
               <select name="portfolio_id" id="portfolio_id" required
-                class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('portfolio_id') border-red-300 @else border-gray-300 @enderror">
+                class="@error('portfolio_id') border-red-300 @else border-gray-300 @enderror mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 <option value="">Select Portfolio</option>
-                @foreach($portfolios as $portfolio)
-                  <option value="{{ $portfolio->id }}" {{ old('portfolio_id', $candidate->portfolio_id) == $portfolio->id ? 'selected' : '' }}>
+                @foreach ($portfolios as $portfolio)
+                  <option value="{{ $portfolio->id }}"
+                    {{ old('portfolio_id', $candidate->portfolio_id) == $portfolio->id ? 'selected' : '' }}>
                     {{ $portfolio->name }}
                   </option>
                 @endforeach
@@ -32,7 +33,7 @@
             <div>
               <label for="name" class="block text-sm font-medium text-gray-700">Name *</label>
               <input type="text" name="name" id="name" value="{{ old('name', $candidate->name) }}" required
-                class="mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('name') border-red-300 @else border-gray-300 @enderror">
+                class="@error('name') border-red-300 @else border-gray-300 @enderror mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
               @error('name')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
               @enderror
