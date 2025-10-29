@@ -22,10 +22,12 @@ class UpdateCandidateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'portfolio_id' => ['required', 'exists:portfolios,id'],
             'name' => ['required', 'string', 'max:255'],
             'bio' => ['nullable', 'string'],
             'position' => ['nullable', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'max:2048'],
+            'photo_path' => ['nullable', 'string'],
             'department' => ['nullable', 'string', 'max:255'],
             'year' => ['nullable', 'string', 'max:255'],
             'manifesto' => ['nullable', 'string'],

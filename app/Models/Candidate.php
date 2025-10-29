@@ -26,7 +26,13 @@ class Candidate extends Model
         'year',
         'manifesto',
         'is_active',
+        'portfolio_id',
     ];
+
+    public function portfolio()
+    {
+        return $this->belongsTo(Portfolio::class);
+    }
 
     public function votes()
     {

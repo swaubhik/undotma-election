@@ -5,9 +5,104 @@
 
 @section('content')
   <div class="px-4 py-12 sm:px-6 lg:px-8">
-    <div class="mb-12 text-center" data-aos="fade-up">
-      <p class="mx-auto max-w-2xl text-xl text-gray-600">
-        Discover the dedicated candidates running for your vote. Click on any candidate to learn more and cast your vote.
+    <!-- Search & Filters Section -->
+    <div class="mb-12 rounded-3xl border border-gray-100 bg-white p-6 shadow-lg" data-aos="fade-up">
+      <form method="GET" class="space-y-6">
+        <!-- Filter Controls -->
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <!-- Portfolio Filter -->
+          <div>
+            <label for="portfolio" class="block text-sm font-medium text-gray-700">Portfolio</label>
+            <select id="portfolio" name="portfolio"
+              class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <option value="">All Portfolios</option>
+              @foreach ($portfolios as $portfolio)
+                <option value="{{ $portfolio->id }}" {{ request('portfolio') == $portfolio->id ? 'selected' : '' }}>
+                  {{ $portfolio->name }} ({{ $portfolio->candidates_count }})
+                </option>
+              @endforeach
+            </select>
+          </div>
+
+          <!-- Department Filter -->
+          @if ($departments->isNotEmpty())
+            <div>
+              <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
+              <select id="department" name="department"
+                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="">All Departments</option>
+                @foreach ($departments as $dept)
+                  <option value="{{ $dept }}" {{ request('department') == $dept ? 'selected' : '' }}>
+                    {{ $dept }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+          @endif
+
+          <!-- Year Filter -->
+          @if ($years->isNotEmpty())
+            <div>
+              <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+              <select id="year" name="year"
+                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="">All Years</option>
+                @foreach ($years as $year)
+                  <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                    {{ $year }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+          @endif
+
+          <!-- Sort -->
+          <div>
+            <label for="sort" class="block text-sm font-medium text-gray-700">Sort By</label>
+            <div class="mt-1 flex rounded-lg border border-gray-300 bg-white shadow-sm">
+              <select id="sort" name="sort"
+                class="block w-full rounded-l-lg border-0 bg-transparent px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="votes" {{ $sort === 'votes' ? 'selected' : '' }}>Votes</option>
+                <option value="name" {{ $sort === 'name' ? 'selected' : '' }}>Name</option>
+              </select>
+              <button type="submit" name="direction" value="{{ $direction === 'asc' ? 'desc' : 'asc' }}"
+                class="flex items-center justify-center border-l border-gray-300 px-3 hover:bg-gray-50">
+                @if ($direction === 'asc')
+                  <i class="fas fa-sort-amount-up text-gray-500"></i>
+                @else
+                  <i class="fas fa-sort-amount-down text-gray-500"></i>
+                @endif
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between">
+          <!-- Filter/Reset -->
+          <div class="flex space-x-4">
+            <button type="submit"
+              class="inline-flex items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              <i class="fas fa-filter"></i>
+              <span>Apply Filters</span>
+            </button>
+            <a href="{{ route('candidates.index') }}"
+              class="inline-flex items-center space-x-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              <i class="fas fa-undo"></i>
+              <span>Reset</span>
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results Info -->
+    <div class="mb-8 flex items-center justify-between" data-aos="fade-up">
+      <p class="text-sm text-gray-600">
+        Showing <span class="font-semibold">{{ $candidates->count() }}</span> candidates
+        @if (request()->hasAny(['portfolio', 'department', 'year']))
+          with current filters
+        @endif
       </p>
     </div>
 
