@@ -62,105 +62,120 @@
       </div>
     </div>
 
-    @if ($candidates->isNotEmpty())
-      <!-- Charts Section -->
-      <div class="mb-12 grid gap-8 lg:grid-cols-2">
-        <!-- Pie Chart -->
-        <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-lg" data-aos="fade-up">
-          <h3 class="mb-6 flex items-center space-x-3 text-2xl font-bold text-gray-900">
-            <i class="fas fa-chart-pie text-blue-600"></i>
-            <span>Vote Distribution</span>
-          </h3>
-          <div id="voteDistributionChart"></div>
-        </div>
+    @if ($portfolios->isNotEmpty())
+      @foreach ($portfolios as $portfolio)
+        @if ($portfolio->candidates->isNotEmpty())
+          <!-- Portfolio Section -->
+          <div class="mb-16 overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-lg" data-aos="fade-up">
+            <div class="border-b bg-gradient-to-r from-gray-50 to-white p-8">
+              <h3 class="text-3xl font-bold text-gray-900">{{ $portfolio->name }}</h3>
+              <p class="mt-2 text-gray-600">{{ $portfolio->candidates->count() }} Candidates</p>
+            </div>
 
-        <!-- Bar Chart -->
-        <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-lg" data-aos="fade-up" data-aos-delay="100">
-          <h3 class="mb-6 flex items-center space-x-3 text-2xl font-bold text-gray-900">
-            <i class="fas fa-chart-bar text-indigo-600"></i>
-            <span>Candidate Standings</span>
-          </h3>
-          <div id="candidateStandingsChart"></div>
-        </div>
-      </div>
+            <!-- Charts Section -->
+            <div class="grid gap-8 p-8 lg:grid-cols-2">
+              <!-- Pie Chart -->
+              <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-lg" data-aos="fade-up">
+                <h3 class="mb-6 flex items-center space-x-3 text-2xl font-bold text-gray-900">
+                  <i class="fas fa-chart-pie text-blue-600"></i>
+                  <span>Vote Distribution</span>
+                </h3>
+                <div id="voteDistributionChart-{{ $portfolio->id }}"></div>
+              </div>
 
-      <!-- Detailed Results Table -->
-      <div class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-lg" data-aos="fade-up">
-        <div class="p-8">
-          <h3 class="mb-8 flex items-center space-x-3 text-2xl font-bold text-gray-900">
-            <i class="fas fa-list text-purple-600"></i>
-            <span>Detailed Rankings</span>
-          </h3>
+              <!-- Bar Chart -->
+              <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-lg" data-aos="fade-up"
+                data-aos-delay="100">
+                <h3 class="mb-6 flex items-center space-x-3 text-2xl font-bold text-gray-900">
+                  <i class="fas fa-chart-bar text-indigo-600"></i>
+                  <span>Candidate Standings</span>
+                </h3>
+                <div id="candidateStandingsChart-{{ $portfolio->id }}"></div>
+              </div>
+            </div>
 
-          <div class="space-y-4">
-            @foreach ($candidates as $index => $candidate)
-              <div
-                class="candidate-row rounded-2xl border-l-4 bg-gradient-to-r from-gray-50 to-white p-6 transition-all duration-300 hover:shadow-lg"
-                data-candidate-id="{{ $candidate->id }}"
-                style="border-left-color: hsl({{ ($index * 360) / count($candidates) }}, 100%, 50%)">
+            <!-- Detailed Rankings -->
+            <div class="border-t bg-gradient-to-r from-gray-50 to-white p-8">
+              <h4 class="mb-8 flex items-center space-x-3 text-2xl font-bold text-gray-900">
+                <i class="fas fa-list text-purple-600"></i>
+                <span>Detailed Rankings</span>
+              </h4>
 
-                <div class="flex items-center justify-between">
-                  <!-- Rank and Name -->
-                  <div class="flex items-center space-x-4">
-                    @if ($index === 0)
-                      <span
-                        class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-lg font-bold text-white shadow-lg">
-                        <i class="fas fa-crown"></i>
-                      </span>
-                    @elseif ($index === 1)
-                      <span
-                        class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gray-400 to-gray-500 text-lg font-bold text-white shadow-lg">
-                        2
-                      </span>
-                    @elseif ($index === 2)
-                      <span
-                        class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-500 text-lg font-bold text-white shadow-lg">
-                        3
-                      </span>
-                    @else
-                      <span
-                        class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-lg font-bold text-white shadow-lg">
-                        {{ $index + 1 }}
-                      </span>
-                    @endif
+              <div class="space-y-4">
+                @foreach ($portfolio->candidates as $index => $candidate)
+                  <div
+                    class="candidate-row rounded-2xl border-l-4 bg-white p-6 transition-all duration-300 hover:shadow-lg"
+                    data-candidate-id="{{ $candidate->id }}" data-portfolio-id="{{ $portfolio->id }}"
+                    style="border-left-color: hsl({{ ($index * 360) / $portfolio->candidates->count() }}, 100%, 50%)">
 
-                    <div>
-                      <h4 class="text-lg font-bold text-gray-900">{{ $candidate->name }}</h4>
-                      @if ($candidate->position)
-                        <p class="flex items-center space-x-1 text-sm text-gray-600">
-                          <i class="fas fa-crown text-yellow-500"></i>
-                          <span>{{ $candidate->position }}</span>
+                    <div class="flex items-center justify-between">
+                      <!-- Rank and Name -->
+                      <div class="flex items-center space-x-4">
+                        @if ($index === 0)
+                          <span
+                            class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-lg font-bold text-white shadow-lg">
+                            <i class="fas fa-crown"></i>
+                          </span>
+                        @elseif ($index === 1)
+                          <span
+                            class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gray-400 to-gray-500 text-lg font-bold text-white shadow-lg">
+                            2
+                          </span>
+                        @elseif ($index === 2)
+                          <span
+                            class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-500 text-lg font-bold text-white shadow-lg">
+                            3
+                          </span>
+                        @else
+                          <span
+                            class="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-lg font-bold text-white shadow-lg">
+                            {{ $index + 1 }}
+                          </span>
+                        @endif
+
+                        <div class="flex items-center space-x-4">
+                          @if ($candidate->photo_path)
+                            <img src="{{ $candidate->photo_path }}" alt="{{ $candidate->name }}"
+                              class="h-12 w-12 rounded-full object-cover shadow-md">
+                          @endif
+                          <div>
+                            <h4 class="text-lg font-bold text-gray-900">{{ $candidate->name }}</h4>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Vote Stats -->
+                      <div class="text-right">
+                        <p
+                          class="candidate-votes bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-black text-transparent">
+                          {{ $candidate->votes_count }}
                         </p>
-                      @endif
+                        @php
+                          $portfolioVotes = $portfolio->candidates->sum('votes_count');
+                          $percentage = $portfolioVotes > 0 ? ($candidate->votes_count / $portfolioVotes) * 100 : 0;
+                        @endphp
+                        <p class="text-sm text-gray-600">
+                          <span class="candidate-percentage font-semibold">
+                            {{ number_format($percentage, 1) }}
+                          </span>%
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mt-4 h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        class="candidate-progress h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500"
+                        style="width: {{ $percentage }}%">
+                      </div>
                     </div>
                   </div>
-
-                  <!-- Vote Stats -->
-                  <div class="text-right">
-                    <p
-                      class="candidate-votes bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-black text-transparent">
-                      {{ $candidate->votes_count }}
-                    </p>
-                    <p class="text-sm text-gray-600">
-                      <span class="candidate-percentage font-semibold">
-                        {{ $totalVotes > 0 ? number_format(($candidate->votes_count / $totalVotes) * 100, 1) : 0 }}
-                      </span>%
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Progress Bar -->
-                <div class="mt-4 h-3 w-full overflow-hidden rounded-full bg-gray-200">
-                  <div
-                    class="candidate-progress h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500"
-                    style="width: {{ $totalVotes > 0 ? ($candidate->votes_count / $totalVotes) * 100 : 0 }}%">
-                  </div>
-                </div>
+                @endforeach
               </div>
-            @endforeach
+            </div>
           </div>
-        </div>
-      </div>
+        @endif
+      @endforeach
 
       <!-- Live Update Indicator -->
       <div class="mt-8 flex items-center justify-center space-x-2 text-sm text-gray-600">
@@ -188,12 +203,12 @@
       once: true
     });
 
-    let chartsPieChart, chartsBarChart;
+    const portfolioCharts = new Map(); // Store chart references by portfolio ID
 
-    function initializeCharts() {
-      const candidates = @json($candidates);
-      const candidateNames = candidates.map(c => c.name);
-      const candidateVotes = candidates.map(c => c.votes_count);
+    function initializePortfolioCharts(portfolio) {
+      const candidateNames = portfolio.candidates.map(c => c.name);
+      const candidateVotes = portfolio.candidates.map(c => c.votes_count);
+      const portfolioVotes = candidateVotes.reduce((a, b) => a + b, 0);
 
       // Pie Chart
       const optionsPie = {
@@ -228,7 +243,7 @@
                   fontWeight: 700,
                   color: '#1f2937',
                   formatter: function(val) {
-                    return val + '%';
+                    return portfolioVotes > 0 ? Math.round((val / portfolioVotes) * 100) + '%' : '0%';
                   }
                 }
               }
@@ -252,9 +267,6 @@
           }
         }]
       };
-
-      chartsPieChart = new ApexCharts(document.querySelector('#voteDistributionChart'), optionsPie);
-      chartsPieChart.render();
 
       // Bar Chart
       const optionsBar = {
@@ -282,7 +294,9 @@
               fontSize: '13px',
               fontWeight: 500,
               colors: '#6b7280'
-            }
+            },
+            rotate: -45,
+            trim: true
           }
         },
         yaxis: {
@@ -330,12 +344,27 @@
         }]
       };
 
-      chartsBarChart = new ApexCharts(document.querySelector('#candidateStandingsChart'), optionsBar);
-      chartsBarChart.render();
+      const pieChart = new ApexCharts(document.querySelector(`#voteDistributionChart-${portfolio.id}`), optionsPie);
+      const barChart = new ApexCharts(document.querySelector(`#candidateStandingsChart-${portfolio.id}`), optionsBar);
+
+      pieChart.render();
+      barChart.render();
+
+      portfolioCharts.set(portfolio.id, {
+        pie: pieChart,
+        bar: barChart
+      });
     }
 
-    // Initialize charts on page load
-    document.addEventListener('DOMContentLoaded', initializeCharts);
+    // Initialize charts for each portfolio
+    document.addEventListener('DOMContentLoaded', () => {
+      const portfolios = @json($portfolios);
+      portfolios.forEach(portfolio => {
+        if (portfolio.candidates.length > 0) {
+          initializePortfolioCharts(portfolio);
+        }
+      });
+    });
 
     // Poll for live results every 5 seconds
     function updateResults() {
@@ -344,33 +373,36 @@
         .then(data => {
           document.getElementById('total-votes').textContent = data.totalVotes;
 
-          data.candidates.forEach((candidate, index) => {
-            const candidateRow = document.querySelector(`[data-candidate-id="${candidate.id}"]`);
-            if (candidateRow) {
-              const votesElement = candidateRow.querySelector('.candidate-votes');
-              const progressBar = candidateRow.querySelector('.candidate-progress');
-              const percentageElement = candidateRow.querySelector('.candidate-percentage');
+          data.portfolios.forEach(portfolio => {
+            const charts = portfolioCharts.get(portfolio.id);
+            const portfolioVotes = portfolio.candidates.reduce((sum, c) => sum + c.votes, 0);
 
-              votesElement.textContent = candidate.votes;
+            // Update candidate rows
+            portfolio.candidates.forEach(candidate => {
+              const candidateRow = document.querySelector(
+                `[data-candidate-id="${candidate.id}"][data-portfolio-id="${portfolio.id}"]`);
+              if (candidateRow) {
+                const votesElement = candidateRow.querySelector('.candidate-votes');
+                const progressBar = candidateRow.querySelector('.candidate-progress');
+                const percentageElement = candidateRow.querySelector('.candidate-percentage');
 
-              const percentage = data.totalVotes > 0 ? (candidate.votes / data.totalVotes) * 100 : 0;
-              progressBar.style.width = percentage + '%';
-              percentageElement.textContent = percentage.toFixed(1);
+                votesElement.textContent = candidate.votes;
+
+                const percentage = portfolioVotes > 0 ? (candidate.votes / portfolioVotes) * 100 : 0;
+                progressBar.style.width = `${percentage}%`;
+                percentageElement.textContent = percentage.toFixed(1);
+              }
+            });
+
+            // Update charts
+            if (charts) {
+              const votes = portfolio.candidates.map(c => c.votes);
+              charts.pie.updateSeries(votes);
+              charts.bar.updateSeries([{
+                data: votes
+              }]);
             }
           });
-
-          // Update charts
-          if (chartsPieChart) {
-            const newVotes = data.candidates.map(c => c.votes);
-            chartsPieChart.updateSeries(newVotes);
-          }
-
-          if (chartsBarChart) {
-            const newVotes = data.candidates.map(c => c.votes);
-            chartsBarChart.updateSeries([{
-              data: newVotes
-            }]);
-          }
         })
         .catch(error => console.error('Error fetching results:', error));
     }

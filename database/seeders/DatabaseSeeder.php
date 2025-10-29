@@ -10,9 +10,6 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         User::factory()->admin()->create([
@@ -21,6 +18,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            PortfolioSeeder::class,
             CandidateSeeder::class,
         ]);
     }

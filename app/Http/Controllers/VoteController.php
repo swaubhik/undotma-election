@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Candidate;
 use App\Models\OtpVerification;
+use App\Models\Portfolio;
 use App\Models\Vote;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -20,10 +21,17 @@ class VoteController extends Controller
             'candidate_id' => ['required', 'exists:candidates,id'],
         ]);
 
-        if (Vote::where('voter_mobile', $request->mobile)->exists()) {
+        // Check if user has already voted for this portfolio
+        $candidate = Candidate::findOrFail($request->candidate_id);
+        if (Vote::where('voter_mobile', $request->mobile)
+            ->whereHas('candidate', function ($query) use ($candidate) {
+                $query->where('portfolio_id', $candidate->portfolio_id);
+            })
+            ->exists()
+        ) {
             return response()->json([
                 'success' => false,
-                'message' => 'You have already voted.',
+                'message' => 'You have already voted for this portfolio.',
             ], 400);
         }
 
@@ -96,35 +104,42 @@ class VoteController extends Controller
 
     public function results(): View
     {
-        $candidates = Candidate::query()
-            ->where('is_active', true)
-            ->withCount(['votes' => fn($query) => $query->where('verified', true)])
-            ->orderBy('votes_count', 'desc')
+        $portfolios = Portfolio::with(['candidates' => function ($query) {
+            $query->where('is_active', true)
+                ->withCount(['votes' => fn($q) => $q->where('verified', true)])
+                ->orderByDesc('votes_count');
+        }])
             ->get();
 
         $totalVotes = Vote::where('verified', true)->count();
 
-        return view('results', compact('candidates', 'totalVotes'));
+        return view('results', compact('portfolios', 'totalVotes'));
     }
 
     public function liveResults(): JsonResponse
     {
-        $candidates = Candidate::query()
-            ->where('is_active', true)
-            ->withCount(['votes' => fn($query) => $query->where('verified', true)])
-            ->orderBy('votes_count', 'desc')
-            ->get(['id', 'name', 'photo'])
-            ->map(fn($candidate) => [
-                'id' => $candidate->id,
-                'name' => $candidate->name,
-                'photo' => $candidate->photo,
-                'votes' => $candidate->votes_count,
-            ]);
+        $portfolios = Portfolio::with(['candidates' => function ($query) {
+            $query->where('is_active', true)
+                ->withCount(['votes' => fn($q) => $q->where('verified', true)])
+                ->orderByDesc('votes_count');
+        }])
+            ->get()
+            ->map(fn($portfolio) => [
+                'id' => $portfolio->id,
+                'name' => $portfolio->name,
+                'candidates' => $portfolio->candidates->map(fn($candidate) => [
+                    'id' => $candidate->id,
+                    'name' => $candidate->name,
+                    'photo' => $candidate->photo_path,
+                    'votes' => $candidate->votes_count,
+                ]),
+            ])
+            ->toArray();
 
         $totalVotes = Vote::where('verified', true)->count();
 
         return response()->json([
-            'candidates' => $candidates,
+            'portfolios' => $portfolios,
             'totalVotes' => $totalVotes,
         ]);
     }
