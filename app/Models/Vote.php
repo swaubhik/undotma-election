@@ -19,6 +19,7 @@ class Vote extends Model
 
     protected $fillable = [
         'candidate_id',
+        'portfolio_id',
         'voter_mobile',
         'verified',
     ];
@@ -26,5 +27,10 @@ class Vote extends Model
     public function candidate()
     {
         return $this->belongsTo(Candidate::class);
+    }
+
+    public function portfolio()
+    {
+        return $this->belongsTo(Portfolio::class, 'portfolio_id');
     }
 }

@@ -84,8 +84,10 @@ class VoteController extends Controller
         }
 
         DB::transaction(function () use ($request, $verificationResult) {
+            $candidate = Candidate::findOrFail($request->candidate_id);
             Vote::create([
                 'candidate_id' => $request->candidate_id,
+                'portfolio_id' => $candidate->portfolio_id,
                 'voter_mobile' => $request->mobile,
                 'verified' => true,
             ]);

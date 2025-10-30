@@ -32,7 +32,7 @@ class ImportStudents extends Command
         $this->info("Importing students...\n");
 
         foreach ($rows as $row) {
-            [$name, $rollNumber, $email, $mobile] = $row;
+            [$name, $rollNumber, $mobile, $email] = $row;
 
             // Skip empty rows
             if (empty($name) || empty($rollNumber)) {
